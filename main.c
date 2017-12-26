@@ -84,12 +84,12 @@ int main(int argc, char *argv[])
 	int rw_mode = -1;
 	char *to_write = NULL;
 	
-	if(argc == 0) {
+	if(argc == 1) {
 		printf("usage : %s -p Serialport [-r Filename] [-w Filename] [-c] [-help]\n\n",argv[0]);
 		printf("-p    : Specify serial port(Required)\n");
 		printf("-r    : Specify the data load destination file(Optional)\n");
 		printf("-w    : Specify the data writing source file(Optional)\n");
-		printf("-c    : Specify auto-naming mode (read-only, -r and -w are ignored)(Optional)\n");
+		printf("-c    : Specify auto-naming mode (read-only, -r and -w will be ignore)(Optional)\n");
 		printf("-help : Show this message\n");
 		return 1;
 	}
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 			printf("-p    : Specify serial port(Required)\n");
 			printf("-r    : Specify the data load destination file(Optional)\n");
 			printf("-w    : Specify the data writing source file(Optional)\n");
-			printf("-c    : Specify auto-naming mode (read-only, -r and -w are ignored)(Optional)\n");
+			printf("-c    : Specify auto-naming mode (read-only, -r and -w will be ignore)(Optional)\n");
 			printf("-help : Show this message\n");
 			return 1;
 		}
@@ -165,10 +165,16 @@ int main(int argc, char *argv[])
 	
 	sleep(2);
 	
+	while(serial_avaiable(device)) {
+		char dmy;
+		serial_read(device,&dmy,1);
+	}
+	
 	puts("Detecting device ...");
 	serial_write(device,"\xa0",1);
 	if(serial_read_with_timeout(device,id,6,10000)) {
 		puts("fatal : Connection failed.");
+		return 6;
 	} else {
 		if(strncmp(id,"MCDINO",6) == 0) {
 			puts("Detected MemCARDuino.");
@@ -178,7 +184,7 @@ int main(int argc, char *argv[])
 		}
 		else {
 			puts("fatal : Unknown Device");
-			//puts(id);
+			puts(id);
 			return 7;
 		}
 		unsigned char version;
