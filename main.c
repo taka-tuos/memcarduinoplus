@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 		}
 		else {
 			puts("fatal : Unknown Device");
-			puts(id);
+			//puts(id);
 			return 7;
 		}
 		unsigned char version;
