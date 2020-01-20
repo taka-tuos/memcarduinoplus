@@ -10,7 +10,7 @@
 #include <SPI.h>
 
 //Device Firmware identifier
-#define IDENTIFIER "MCDPLS"  //MemCARDuinoPlus
+#define IDENTIFIER "MCDINO"  //MemCARDuinoPlus
 #define VERSION 0x10         //Firmware version byte (Major.Minor)
 
 //Commands
@@ -188,7 +188,7 @@ void setup()
 void loop()
 {
   //Listen for commands
-  if(Serial.available() > 0)
+  while(Serial.available() > 0)
   {
     ReadByte = Serial.read();
 
@@ -208,11 +208,13 @@ void loop()
 
       case MCREAD:
       while(Serial.available() < 2);
+      delay(5);
       ReadFrame(Serial.read() | Serial.read() << 8);
         break;
 
       case MCWRITE:
       while(Serial.available() < 2);
+      delay(5);
       WriteFrame(Serial.read() | Serial.read() << 8);
         break;
     }

@@ -14,10 +14,14 @@ int mc_read(SERIAL *device, FILE *fp, int i)
 	unsigned char frame_lsb = i & 0xff;
 	unsigned char frame_msb = i >> 8;
 	
+	printf("block %d read", i);
+	
 	serial_write(device,"\xa2",1);
 	
 	serial_write(device,&frame_msb,1);
 	serial_write(device,&frame_lsb,1);
+	
+	printf("...");
 	
 	unsigned char xor_data = (frame_msb ^ frame_lsb);
 	
@@ -33,7 +37,9 @@ int mc_read(SERIAL *device, FILE *fp, int i)
 	if(block[129] == 0x47 && block[128] == xor_data) {
 		fwrite(block,1,128,fp);
 		i++;
-		printf("BLOCK %d READ\n",i);
+		printf("done\n");
+	} else {
+		printf("fail\n");
 	}
 	
 	return i;
@@ -60,8 +66,12 @@ int mc_write(SERIAL *device,FILE *fp, int i)
 		xor_data ^= block[j];
 	}
 	
+	printf("block %d write", i);
+	
 	serial_write(device,block,128);
 	serial_write(device,&xor_data,1);
+	
+	printf("...");
 	
 	while(serial_avaiable(device) < 1);
 	
@@ -69,9 +79,10 @@ int mc_write(SERIAL *device,FILE *fp, int i)
 	
 	if(block[0] == 0x47) {
 		i++;
-		printf("BLOCK %d WRITE\n",i);
+		printf("done\n");
 	} else {
 		fseek(fp,-128,SEEK_CUR);
+		printf("fail(code=%02x)\n",block[0]);
 	}
 	
 	return i;
